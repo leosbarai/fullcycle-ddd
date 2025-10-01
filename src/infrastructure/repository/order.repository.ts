@@ -1,70 +1,34 @@
-import CustomerRepositoryInterface from "../../domain/repository/customer-repository.interface";
-import Customer from "../../domain/entity/customer";
-import CustomerModel from "../db/sequelize/model/customer.model";
-import Address from "../../domain/entity/adress";
+import Order from "../../domain/entity/order";
+import OrderModel from "../db/sequelize/model/order.model";
+import OrderItemModel from "../db/sequelize/model/order-item.model";
+import OrderRepositoryInterface from "../../domain/repository/order-repository.interface";
 
-export default class CustomerRepository implements CustomerRepositoryInterface {
-    async create(entity: Customer): Promise<void> {
-        await CustomerModel.create({
-            id: entity.id,
-            name: entity.name,
-            street: entity.address.street,
-            number: entity.address.number,
-            zipcode: entity.address.zip,
-            city: entity.address.city,
-            active: entity.isActive(),
-            rewardPoints: entity.rewardPoints,
-        });
-    }
-
-    async update(entity: Customer): Promise<void> {
-        await CustomerModel.update({
-                name: entity.name,
-                street: entity.address.street,
-                number: entity.address.number,
-                zipcode: entity.address.zip,
-                city: entity.address.city,
-                active: entity.isActive(),
-                rewardPoints: entity.rewardPoints,
+export default class OrderRepository implements OrderRepositoryInterface {
+    async create(entity: Order): Promise<void> {
+        await OrderModel.create({
+                id: entity.id,
+                customerId: entity.customerId,
+                total: entity.total(),
+                items: entity.items.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                })),
             },
             {
-                where: {
-                    id: entity.id,
-                }
+                include: [{model: OrderItemModel}],
             });
     }
 
-    async find(id: string): Promise<Customer> {
-        let customerModel;
-        try {
-            customerModel = await CustomerModel.findOne({
-                where: {
-                    id,
-                },
-                rejectOnEmpty: true,
-            });
-        } catch (error) {
-            throw new Error("Customer not found");
-        }
-
-        const customer = new Customer(customerModel.id, customerModel.name);
-        const address = new Address(customerModel.street, customerModel.number, customerModel.zipcode, customerModel.city);
-        customer.changeAddress(address);
-        return customer;
+    update(entity: Order): Promise<void> {
+        throw new Error("Method not implemented.");
     }
-
-    async findAll(): Promise<Customer[]> {
-        const customerModels = await CustomerModel.findAll();
-
-        return customerModels.map((customerModel) => {
-            let customer = new Customer(customerModel.id, customerModel.name);
-            customer.addRewardPoints(customerModel.rewardPoints);
-            const address = new Address(customerModel.street, customerModel.number, customerModel.zipcode, customerModel.city);
-            customer.changeAddress(address);
-            if (customerModel.active) {
-                customer.activate();
-            }
-            return customer;
-        });
+    find(id: string): Promise<Order> {
+        throw new Error("Method not implemented.");
+    }
+    findAll(): Promise<Order[]> {
+        throw new Error("Method not implemented.");
     }
 }

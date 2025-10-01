@@ -1,14 +1,29 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "DDD",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "@swc/cli": "^0.7.8",
+    "@swc/core": "^1.13.3",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.5",
+    "ts-node": "^10.9.2",
+    "tslint": "^5.20.1",
+    "typescript": "^5.9.2"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.7",
+    "sequelize-typescript": "^2.1.6",
+    "sqlite3": "^5.1.7",
+    "uuid": "^11.1.0"
+  }
 }
