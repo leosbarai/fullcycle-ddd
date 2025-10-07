@@ -1,4 +1,10 @@
 import Address from "./adress";
+import EventDispatcher from "../event/@shared/event-dispatcher";
+import CustomerCreatedEvent from "../event/customer/customer-created.event";
+import EnviaConsoleLog1Handler from "../event/customer/handler/envia-console-log1.handler";
+import EnviaConsoleLog2Handler from "../event/customer/handler/envia-console-log2.handler";
+import CustomerAddressChangedEvent from "../event/customer/customer-address-changed.event";
+import EnviaConsoleLogAddressChangedHandler from "../event/customer/handler/envia-console-log-address-changed.handler";
 
 export default class Customer {
 
@@ -7,12 +13,27 @@ export default class Customer {
     private _address!: Address;
     private _active: boolean = false;
     private _rewardPoints: number = 0;
+    private eventDispatcher: EventDispatcher;
 
     constructor(id: string, name: string) {
         this._id = id;
         this._name = name;
-
+        this.eventDispatcher = new EventDispatcher();
         this.validate();
+        
+        const enviaConsoleLog1Handler = new EnviaConsoleLog1Handler();
+        const enviaConsoleLog2Handler = new EnviaConsoleLog2Handler();
+        this.eventDispatcher.register("CustomerCreatedEvent", enviaConsoleLog1Handler);
+        this.eventDispatcher.register("CustomerCreatedEvent", enviaConsoleLog2Handler);
+        
+        const enviaConsoleLogAddressChangedHandler = new EnviaConsoleLogAddressChangedHandler();
+        this.eventDispatcher.register("CustomerAddressChangedEvent", enviaConsoleLogAddressChangedHandler);
+        
+        const customerCreatedEvent = new CustomerCreatedEvent({
+            id: this._id,
+            name: this._name
+        });
+        this.eventDispatcher.notify(customerCreatedEvent);
     }
 
     get id() {
@@ -52,6 +73,13 @@ export default class Customer {
 
     changeAddress(address: Address) {
         this._address = address;
+        
+        const customerAddressChangedEvent = new CustomerAddressChangedEvent({
+            id: this._id,
+            name: this._name,
+            address: this._address
+        });
+        this.eventDispatcher.notify(customerAddressChangedEvent);
     }
 
     activate() {
@@ -69,7 +97,7 @@ export default class Customer {
         this._rewardPoints += points;
     }
 
-    set Address(adress: Address) {
-        this._address = adress;
+    set Address(address: Address) {
+        this._address = address;
     }
 }
